@@ -374,19 +374,19 @@ $$
 
 **Média Móvel Simples (SMA)**:
 $$
-\text{SMA}_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}
+SMA_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}
 $$
 
 **Média Móvel Exponencial (EMA)**:
 $$
-\text{EMA}_n(t) = \alpha \cdot P_t + (1-\alpha) \cdot \text{EMA}_n(t-1)
+EMA_n(t) = \alpha \cdot P_t + (1-\alpha) \cdot EMA_n(t-1)
 $$
 
 onde $\alpha = \frac{2}{n+1}$ é o fator de suavização.
 
 **Ratios de Preço**:
 $$
-\text{ratio}_{\text{SMA}}(t) = \frac{P_t}{\text{SMA}_n(t)}
+ratio_{SMA}(t) = \frac{P_t}{SMA_n(t)}
 $$
 
 **Volatilidade (Desvio Padrão dos Retornos)**:
@@ -398,41 +398,41 @@ onde $\bar{r}_n = \frac{1}{n} \sum_{i=0}^{n-1} r_{t-i}$ é a média dos retornos
 
 **RSI (Relative Strength Index)**:
 $$
-\text{RS}_n(t) = \frac{\text{AG}_n(t)}{\text{AL}_n(t)}
+RS_n(t) = \frac{AG_n(t)}{AL_n(t)}
 $$
 
 $$
-\text{RSI}_n(t) = 100 - \frac{100}{1 + \text{RS}_n(t)}
+RSI_n(t) = 100 - \frac{100}{1 + RS_n(t)}
 $$
 
 onde:
-- $\text{AG}_n(t)$ é a média dos ganhos nos últimos $n$ períodos
-- $\text{AL}_n(t)$ é a média das perdas nos últimos $n$ períodos
+- $AG_n(t)$ é a média dos ganhos nos últimos $n$ períodos
+- $AL_n(t)$ é a média das perdas nos últimos $n$ períodos
 
 **Bandas de Bollinger**:
 $$
-\text{BB}_{\text{middle}}(t) = \text{SMA}_{20}(t)
+BB_{middle}(t) = SMA_{20}(t)
 $$
 
 $$
-\text{BB}_{\text{upper}}(t) = \text{SMA}_{20}(t) + 2 \cdot \sigma_{20}(t)
+BB_{upper}(t) = SMA_{20}(t) + 2 \cdot \sigma_{20}(t)
 $$
 
 $$
-\text{BB}_{\text{lower}}(t) = \text{SMA}_{20}(t) - 2 \cdot \sigma_{20}(t)
+BB_{lower}(t) = SMA_{20}(t) - 2 \cdot \sigma_{20}(t)
 $$
 
 $$
-\text{BB}_{\text{width}}(t) = \frac{\text{BB}_{\text{upper}}(t) - \text{BB}_{\text{lower}}(t)}{\text{BB}_{\text{middle}}(t)}
+BB_{width}(t) = \frac{BB_{upper}(t) - BB_{lower}(t)}{BB_{middle}(t)}
 $$
 
 $$
-\text{BB}_{\text{pos}}(t) = \frac{P_t - \text{BB}_{\text{lower}}(t)}{\text{BB}_{\text{upper}}(t) - \text{BB}_{\text{lower}}(t)}
+BB_{pos}(t) = \frac{P_t - BB_{lower}(t)}{BB_{upper}(t) - BB_{lower}(t)}
 $$
 
 **Z-score de Volume**:
 $$
-\text{volume\_zscore}_n(t) = \frac{V_t - \bar{V}_n}{\sigma_{V,n}}
+volume\_zscore_n(t) = \frac{V_t - \bar{V}_n}{\sigma_{V,n}}
 $$
 
 onde:
@@ -442,7 +442,7 @@ onde:
 
 **Correlação Preço-Volume**:
 $$
-\text{pv\_corr}_n(t) = \frac{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)(\Delta V_{t-i} - \overline{\Delta V}_n)}{\sqrt{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2 \sum_{i=0}^{n-1} (\Delta V_{t-i} - \overline{\Delta V}_n)^2}}
+pv\_corr_n(t) = \frac{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)(\Delta V_{t-i} - \overline{\Delta V}_n)}{\sqrt{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2 \sum_{i=0}^{n-1} (\Delta V_{t-i} - \overline{\Delta V}_n)^2}}
 $$
 
 onde $\Delta V_t = V_t - V_{t-1}$ é a variação do volume.
@@ -452,17 +452,17 @@ onde $\Delta V_t = V_t - V_{t-1}$ é a variação do volume.
 O Decision Tree busca minimizar a variância dentro dos bins:
 
 $$
-\text{Var}_{\text{within}} = \sum_{b=1}^{B} \sum_{i \in \text{bin}_b} (r_i - \bar{r}_b)^2
+Var_{within} = \sum_{b=1}^{B} \sum_{i \in bin_b} (r_i - \bar{r}_b)^2
 $$
 
 onde:
 - $B = 5$ é o número de bins
 - $\bar{r}_b$ é a média dos retornos no bin $b$
-- $\text{bin}_b$ contém os índices das amostras no bin $b$
+- $bin_b$ contém os índices das amostras no bin $b$
 
-O algoritmo escolhe os cortes que minimizam $\text{Var}_{\text{within}}$ sujeito a:
+O algoritmo escolhe os cortes que minimizam $Var_{within}$ sujeito a:
 $$
-|\text{bin}_b| \geq \text{min\_samples\_leaf} \quad \forall b
+|bin_b| \geq min\_samples\_leaf \quad \forall b
 $$
 
 #### 4. MLP (Multi-Layer Perceptron)
@@ -471,12 +471,12 @@ $$
 
 Camada oculta 1:
 $$
-\mathbf{h}_1 = \text{ReLU}(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)
+\mathbf{h}_1 = ReLU(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)
 $$
 
 Camada oculta 2:
 $$
-\mathbf{h}_2 = \text{ReLU}(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)
+\mathbf{h}_2 = ReLU(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)
 $$
 
 Camada de saída (logits):
@@ -486,7 +486,7 @@ $$
 
 Função de ativação ReLU:
 $$
-\text{ReLU}(x) = \max(0, x)
+ReLU(x) = \max(0, x)
 $$
 
 **Softmax** (normalização para probabilidades):
@@ -505,7 +505,7 @@ onde:
 
 **Regularização L2**:
 $$
-\mathcal{L}_{\text{total}} = \mathcal{L} + \alpha \sum_{l=1}^{3} ||\mathbf{W}_l||_2^2
+\mathcal{L}_{total} = \mathcal{L} + \alpha \sum_{l=1}^{3} ||\mathbf{W}_l||_2^2
 $$
 
 onde $\alpha = 0.0001$ é o coeficiente de regularização.
@@ -551,43 +551,43 @@ $$
 
 **Retorno Líquido (após custos de transação)**:
 $$
-R_{\text{net}}(t) = R_p(t) - \tau \cdot \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
+R_{net}(t) = R_p(t) - \tau \cdot \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
 $$
 
 onde $\tau = 0.001$ (0.1%) é a taxa de custo de transação.
 
 **Sharpe Ratio Local**:
 $$
-\text{SR}(t) = \frac{\bar{R}_{\text{net}} - r_f}{\sigma_{R_{\text{net}}}}
+SR(t) = \frac{\bar{R}_{net} - r_f}{\sigma_{R_{net}}}
 $$
 
 onde:
-- $\bar{R}_{\text{net}} = \frac{1}{W} \sum_{i=t-W+1}^{t} R_{\text{net}}(i)$ é a média dos retornos líquidos em uma janela de $W$ períodos
-- $\sigma_{R_{\text{net}}} = \sqrt{\frac{1}{W-1} \sum_{i=t-W+1}^{t} (R_{\text{net}}(i) - \bar{R}_{\text{net}})^2}$ é o desvio padrão
+- $\bar{R}_{net} = \frac{1}{W} \sum_{i=t-W+1}^{t} R_{net}(i)$ é a média dos retornos líquidos em uma janela de $W$ períodos
+- $\sigma_{R_{net}} = \sqrt{\frac{1}{W-1} \sum_{i=t-W+1}^{t} (R_{net}(i) - \bar{R}_{net})^2}$ é o desvio padrão
 - $r_f$ é a taxa livre de risco (assumida como 0)
 
 **Recompensa**:
 $$
-r_t = \text{SR}(t) - \lambda_{\text{turnover}} \cdot \text{Turnover}(t)
+r_t = SR(t) - \lambda_{turnover} \cdot Turnover(t)
 $$
 
 onde:
 $$
-\text{Turnover}(t) = \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
+Turnover(t) = \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
 $$
 
-e $\lambda_{\text{turnover}}$ é o coeficiente de penalização por turnover.
+e $\lambda_{turnover}$ é o coeficiente de penalização por turnover.
 
 **EWMA (Exponentially Weighted Moving Average) da Volatilidade**:
 $$
-\sigma_{\text{EWMA}}(t) = \alpha \cdot |r(t)| + (1-\alpha) \cdot \sigma_{\text{EWMA}}(t-1)
+\sigma_{EWMA}(t) = \alpha \cdot |r(t)| + (1-\alpha) \cdot \sigma_{EWMA}(t-1)
 $$
 
 onde $\alpha$ é o fator de decaimento (tipicamente 0.1-0.3).
 
 **Função de Valor (Value Function)**:
 $$
-V^\pi(s_t) = \mathbb{E}_\pi \left[ \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \mid s_t \right]
+V^\pi(s_t) = E_\pi \left[ \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \mid s_t \right]
 $$
 
 onde:
@@ -607,23 +607,23 @@ onde $\lambda = 0.95$ é o parâmetro GAE.
 
 **Função Objetivo do PPO**:
 $$
-L^{\text{CLIP}}(\theta) = \mathbb{E}_t \left[ \min\left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+L^{CLIP}(\theta) = E_t \left[ \min\left( r_t(\theta) \hat{A}_t, clip(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
 $$
 
 onde:
 $$
-r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{\text{old}}}(a_t | s_t)}
+r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{old}}(a_t | s_t)}
 $$
 
 é a razão de probabilidades e $\epsilon = 0.2$ é o clipping range.
 
 **Função Objetivo Total**:
 $$
-L(\theta) = L^{\text{CLIP}}(\theta) - c_1 L^{\text{VF}}(\theta) + c_2 S[\pi_\theta](s_t)
+L(\theta) = L^{CLIP}(\theta) - c_1 L^{VF}(\theta) + c_2 S[\pi_\theta](s_t)
 $$
 
 onde:
-- $L^{\text{VF}}(\theta) = (V_\theta(s_t) - \hat{V}_t)^2$ é a função de perda do value network
+- $L^{VF}(\theta) = (V_\theta(s_t) - \hat{V}_t)^2$ é a função de perda do value network
 - $S[\pi_\theta](s_t) = -\sum_{a} \pi_\theta(a|s_t) \log \pi_\theta(a|s_t)$ é a entropia (para exploração)
 - $c_1 = 0.5$ e $c_2 = 0.01$ são coeficientes
 
@@ -631,7 +631,7 @@ onde:
 
 **StandardScaler**:
 $$
-x_{\text{normalized}} = \frac{x - \mu}{\sigma}
+x_{normalized} = \frac{x - \mu}{\sigma}
 $$
 
 onde:
@@ -642,7 +642,7 @@ onde:
 
 **Accuracy**:
 $$
-\text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}}
+Accuracy = \frac{TP + TN}{TP + TN + FP + FN}
 $$
 
 **F1-Score (Macro)**:
@@ -652,27 +652,27 @@ $$
 
 onde:
 $$
-F_{1,k} = \frac{2 \cdot \text{Precision}_k \cdot \text{Recall}_k}{\text{Precision}_k + \text{Recall}_k}
+F_{1,k} = \frac{2 \cdot Precision_k \cdot Recall_k}{Precision_k + Recall_k}
 $$
 
 **Sharpe Ratio (Global)**:
 $$
-\text{Sharpe} = \frac{\bar{R} - r_f}{\sigma_R} \cdot \sqrt{T}
+Sharpe = \frac{\bar{R} - r_f}{\sigma_R} \cdot \sqrt{T}
 $$
 
 onde $T$ é o número de períodos (anualizado).
 
 **Drawdown Máximo**:
 $$
-\text{DD}(t) = \frac{\text{Peak}(t) - V(t)}{\text{Peak}(t)}
+DD(t) = \frac{Peak(t) - V(t)}{Peak(t)}
 $$
 
 $$
-\text{MDD} = \max_t \text{DD}(t)
+MDD = \max_t DD(t)
 $$
 
 onde:
-- $\text{Peak}(t) = \max_{s \leq t} V(s)$ é o valor máximo até o período $t$
+- $Peak(t) = \max_{s \leq t} V(s)$ é o valor máximo até o período $t$
 - $V(t)$ é o valor do portfólio no período $t$
 
 #### 6. Processamento de Sentimento
