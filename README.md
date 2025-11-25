@@ -223,18 +223,6 @@ from src.binning.decision_tree import create_supervised_static_bins
 from src.models.mlp_pipeline import main as train_mlp
 ```
 
-## Notas de Migração
-
-Se você estava usando os arquivos antigos (`main.py`, `main2.py`), as funções foram movidas para:
-
-- `main.py` → `src/data/data_fetcher.py` + `src/binning/`
-- `main2.py` → `scripts/run_pipeline.py`
-- `indicators.py` → `src/data/indicators.py`
-- `mlp_pipeline.py` → `src/models/mlp_pipeline.py`
-- `rl_pipeline.py` → `src/models/rl_pipeline.py`
-
-Atualize seus imports conforme necessário.
-
 ## Licença
 
 Este projeto é fornecido "como está" para fins educacionais e de pesquisa.
