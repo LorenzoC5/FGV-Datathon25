@@ -60,7 +60,6 @@ A estratégia transforma retornos contínuos em 5 classes discretas usando **Dec
 ### 3. Pipeline RL (Reinforcement Learning - Semanal)
 
 - **Frequência**: Dados semanais (1w)
-- **Ambiente**: `CryptoPortfolioEnv` (Gymnasium)
 - **Algoritmo**: PPO (Proximal Policy Optimization)
 - **Entrada**: 
   - Sentimento (S[t]): vetor [positivo, neutro, negativo]
