@@ -655,7 +655,7 @@ onde:
 
 ## Contribuição
 
-Este projeto foi desenvolvido para o Datathon FGV. Para questões ou melhorias, por favor abra uma issue ou pull request.
+Este projeto foi desenvolvido para o Datathon FGV 25 por Lorenzo Cavalcante, Maisa Lumi Sonoda, Gabriel da Silva Navarro, Guilherme Freitas e Rodrigo Catto Menin. Para questões ou melhorias, por favor abra uma issue ou pull request.
 
 ## Estrutura Modular
 
