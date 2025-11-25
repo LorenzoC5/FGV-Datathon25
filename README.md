@@ -350,6 +350,331 @@ crypto_data_{symbols}_{interval}_{start}_{end}.pkl
 - Remove features altamente correlacionadas
 - Mantém diversidade de informações
 
+### Equações Matemáticas
+
+#### 1. Retornos Logarítmicos
+
+O retorno logarítmico é calculado como:
+
+\[
+r_t = \ln\left(\frac{P_t}{P_{t-1}}\right) = \ln(P_t) - \ln(P_{t-1})
+\]
+
+onde:
+- \(r_t\) é o retorno logarítmico no período \(t\)
+- \(P_t\) é o preço de fechamento no período \(t\)
+- \(P_{t-1}\) é o preço de fechamento no período anterior
+
+**Retornos Acumulados**:
+\[
+r_{t-k:t} = \sum_{i=t-k+1}^{t} r_i = \ln\left(\frac{P_t}{P_{t-k}}\right)
+\]
+
+#### 2. Indicadores Técnicos
+
+**Média Móvel Simples (SMA)**:
+\[
+\text{SMA}_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}
+\]
+
+**Média Móvel Exponencial (EMA)**:
+\[
+\text{EMA}_n(t) = \alpha \cdot P_t + (1-\alpha) \cdot \text{EMA}_n(t-1)
+\]
+
+onde \(\alpha = \frac{2}{n+1}\) é o fator de suavização.
+
+**Ratios de Preço**:
+\[
+\text{ratio}_{\text{SMA}}(t) = \frac{P_t}{\text{SMA}_n(t)}
+\]
+
+**Volatilidade (Desvio Padrão dos Retornos)**:
+\[
+\sigma_n(t) = \sqrt{\frac{1}{n-1} \sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2}
+\]
+
+onde \(\bar{r}_n = \frac{1}{n} \sum_{i=0}^{n-1} r_{t-i}\) é a média dos retornos.
+
+**RSI (Relative Strength Index)**:
+\[
+\text{RS}_n(t) = \frac{\text{AG}_n(t)}{\text{AL}_n(t)}
+\]
+
+\[
+\text{RSI}_n(t) = 100 - \frac{100}{1 + \text{RS}_n(t)}
+\]
+
+onde:
+- \(\text{AG}_n(t)\) é a média dos ganhos nos últimos \(n\) períodos
+- \(\text{AL}_n(t)\) é a média das perdas nos últimos \(n\) períodos
+
+**Bandas de Bollinger**:
+\[
+\text{BB}_{\text{middle}}(t) = \text{SMA}_{20}(t)
+\]
+
+\[
+\text{BB}_{\text{upper}}(t) = \text{SMA}_{20}(t) + 2 \cdot \sigma_{20}(t)
+\]
+
+\[
+\text{BB}_{\text{lower}}(t) = \text{SMA}_{20}(t) - 2 \cdot \sigma_{20}(t)
+\]
+
+\[
+\text{BB}_{\text{width}}(t) = \frac{\text{BB}_{\text{upper}}(t) - \text{BB}_{\text{lower}}(t)}{\text{BB}_{\text{middle}}(t)}
+\]
+
+\[
+\text{BB}_{\text{pos}}(t) = \frac{P_t - \text{BB}_{\text{lower}}(t)}{\text{BB}_{\text{upper}}(t) - \text{BB}_{\text{lower}}(t)}
+\]
+
+**Z-score de Volume**:
+\[
+\text{volume\_zscore}_n(t) = \frac{V_t - \bar{V}_n}{\sigma_{V,n}}
+\]
+
+onde:
+- \(V_t\) é o volume no período \(t\)
+- \(\bar{V}_n\) é a média do volume nos últimos \(n\) períodos
+- \(\sigma_{V,n}\) é o desvio padrão do volume nos últimos \(n\) períodos
+
+**Correlação Preço-Volume**:
+\[
+\text{pv\_corr}_n(t) = \frac{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)(\Delta V_{t-i} - \overline{\Delta V}_n)}{\sqrt{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2 \sum_{i=0}^{n-1} (\Delta V_{t-i} - \overline{\Delta V}_n)^2}}
+\]
+
+onde \(\Delta V_t = V_t - V_{t-1}\) é a variação do volume.
+
+#### 3. Binning Supervisionado (Decision Tree)
+
+O Decision Tree busca minimizar a variância dentro dos bins:
+
+\[
+\text{Var}_{\text{within}} = \sum_{b=1}^{B} \sum_{i \in \text{bin}_b} (r_i - \bar{r}_b)^2
+\]
+
+onde:
+- \(B = 5\) é o número de bins
+- \(\bar{r}_b\) é a média dos retornos no bin \(b\)
+- \(\text{bin}_b\) contém os índices das amostras no bin \(b\)
+
+O algoritmo escolhe os cortes que minimizam \(\text{Var}_{\text{within}}\) sujeito a:
+\[
+|\text{bin}_b| \geq \text{min\_samples\_leaf} \quad \forall b
+\]
+
+#### 4. MLP (Multi-Layer Perceptron)
+
+**Forward Pass**:
+
+Camada oculta 1:
+\[
+\mathbf{h}_1 = \text{ReLU}(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)
+\]
+
+Camada oculta 2:
+\[
+\mathbf{h}_2 = \text{ReLU}(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)
+\]
+
+Camada de saída (logits):
+\[
+\mathbf{z} = \mathbf{W}_3 \mathbf{h}_2 + \mathbf{b}_3
+\]
+
+Função de ativação ReLU:
+\[
+\text{ReLU}(x) = \max(0, x)
+\]
+
+**Softmax** (normalização para probabilidades):
+\[
+P(y = k | \mathbf{x}) = \frac{e^{z_k}}{\sum_{j=1}^{5} e^{z_j}}
+\]
+
+**Função de Perda (Cross-Entropy)**:
+\[
+\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{k=1}^{5} y_{i,k} \log(P(y_i = k | \mathbf{x}_i))
+\]
+
+onde:
+- \(N\) é o número de amostras
+- \(y_{i,k}\) é 1 se a classe verdadeira da amostra \(i\) é \(k\), 0 caso contrário
+
+**Regularização L2**:
+\[
+\mathcal{L}_{\text{total}} = \mathcal{L} + \alpha \sum_{l=1}^{3} ||\mathbf{W}_l||_2^2
+\]
+
+onde \(\alpha = 0.0001\) é o coeficiente de regularização.
+
+**Otimizador Adam**:
+\[
+\mathbf{m}_t = \beta_1 \mathbf{m}_{t-1} + (1-\beta_1) \nabla_\theta \mathcal{L}_t
+\]
+
+\[
+\mathbf{v}_t = \beta_2 \mathbf{v}_{t-1} + (1-\beta_2) (\nabla_\theta \mathcal{L}_t)^2
+\]
+
+\[
+\hat{\mathbf{m}}_t = \frac{\mathbf{m}_t}{1-\beta_1^t}, \quad \hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1-\beta_2^t}
+\]
+
+\[
+\theta_{t+1} = \theta_t - \eta \frac{\hat{\mathbf{m}}_t}{\sqrt{\hat{\mathbf{v}}_t} + \epsilon}
+\]
+
+onde:
+- \(\beta_1 = 0.9\), \(\beta_2 = 0.999\) são os momentos de decaimento
+- \(\eta = 0.001\) é a taxa de aprendizado
+- \(\epsilon = 10^{-8}\) é um termo de estabilização
+
+#### 5. Reinforcement Learning (PPO)
+
+**Normalização de Ações (Softmax)**:
+\[
+w_i = \frac{e^{a_i}}{\sum_{j=1}^{N} e^{a_j}}
+\]
+
+onde:
+- \(a_i\) são os logits da ação (antes da normalização)
+- \(w_i\) são os pesos normalizados do portfólio
+- \(\sum_{i=1}^{N} w_i = 1\) (restrição de soma unitária)
+
+**Retorno do Portfólio**:
+\[
+R_p(t) = \sum_{i=1}^{N} w_i(t) \cdot r_i(t+1)
+\]
+
+**Retorno Líquido (após custos de transação)**:
+\[
+R_{\text{net}}(t) = R_p(t) - \tau \cdot \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
+\]
+
+onde \(\tau = 0.001\) (0.1%) é a taxa de custo de transação.
+
+**Sharpe Ratio Local**:
+\[
+\text{SR}(t) = \frac{\bar{R}_{\text{net}} - r_f}{\sigma_{R_{\text{net}}}}
+\]
+
+onde:
+- \(\bar{R}_{\text{net}} = \frac{1}{W} \sum_{i=t-W+1}^{t} R_{\text{net}}(i)\) é a média dos retornos líquidos em uma janela de \(W\) períodos
+- \(\sigma_{R_{\text{net}}} = \sqrt{\frac{1}{W-1} \sum_{i=t-W+1}^{t} (R_{\text{net}}(i) - \bar{R}_{\text{net}})^2}\) é o desvio padrão
+- \(r_f\) é a taxa livre de risco (assumida como 0)
+
+**Recompensa**:
+\[
+r_t = \text{SR}(t) - \lambda_{\text{turnover}} \cdot \text{Turnover}(t)
+\]
+
+onde:
+\[
+\text{Turnover}(t) = \sum_{i=1}^{N} |w_i(t) - w_i(t-1)|
+\]
+
+e \(\lambda_{\text{turnover}}\) é o coeficiente de penalização por turnover.
+
+**EWMA (Exponentially Weighted Moving Average) da Volatilidade**:
+\[
+\sigma_{\text{EWMA}}(t) = \alpha \cdot |r(t)| + (1-\alpha) \cdot \sigma_{\text{EWMA}}(t-1)
+\]
+
+onde \(\alpha\) é o fator de decaimento (tipicamente 0.1-0.3).
+
+**Função de Valor (Value Function)**:
+\[
+V^\pi(s_t) = \mathbb{E}_\pi \left[ \sum_{k=0}^{\infty} \gamma^k r_{t+k+1} \mid s_t \right]
+\]
+
+onde:
+- \(\gamma = 0.99\) é o fator de desconto
+- \(\pi\) é a política (policy)
+
+**GAE (Generalized Advantage Estimation)**:
+\[
+\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)
+\]
+
+\[
+\hat{A}_t = \delta_t + (\gamma \lambda) \delta_{t+1} + (\gamma \lambda)^2 \delta_{t+2} + \cdots
+\]
+
+onde \(\lambda = 0.95\) é o parâmetro GAE.
+
+**Função Objetivo do PPO**:
+\[
+L^{\text{CLIP}}(\theta) = \mathbb{E}_t \left[ \min\left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+\]
+
+onde:
+\[
+r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{\text{old}}}(a_t | s_t)}
+\]
+
+é a razão de probabilidades e \(\epsilon = 0.2\) é o clipping range.
+
+**Função Objetivo Total**:
+\[
+L(\theta) = L^{\text{CLIP}}(\theta) - c_1 L^{\text{VF}}(\theta) + c_2 S[\pi_\theta](s_t)
+\]
+
+onde:
+- \(L^{\text{VF}}(\theta) = (V_\theta(s_t) - \hat{V}_t)^2\) é a função de perda do value network
+- \(S[\pi_\theta](s_t) = -\sum_{a} \pi_\theta(a|s_t) \log \pi_\theta(a|s_t)\) é a entropia (para exploração)
+- \(c_1 = 0.5\) e \(c_2 = 0.01\) são coeficientes
+
+#### 6. Normalização de Features
+
+**StandardScaler**:
+\[
+x_{\text{normalized}} = \frac{x - \mu}{\sigma}
+\]
+
+onde:
+- \(\mu = \frac{1}{N} \sum_{i=1}^{N} x_i\) é a média
+- \(\sigma = \sqrt{\frac{1}{N-1} \sum_{i=1}^{N} (x_i - \mu)^2}\) é o desvio padrão
+
+#### 7. Métricas de Avaliação
+
+**Accuracy**:
+\[
+\text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{TP} + \text{TN} + \text{FP} + \text{FN}}
+\]
+
+**F1-Score (Macro)**:
+\[
+F_1 = \frac{1}{C} \sum_{k=1}^{C} F_{1,k}
+\]
+
+onde:
+\[
+F_{1,k} = \frac{2 \cdot \text{Precision}_k \cdot \text{Recall}_k}{\text{Precision}_k + \text{Recall}_k}
+\]
+
+**Sharpe Ratio (Global)**:
+\[
+\text{Sharpe} = \frac{\bar{R} - r_f}{\sigma_R} \cdot \sqrt{T}
+\]
+
+onde \(T\) é o número de períodos (anualizado).
+
+**Drawdown Máximo**:
+\[
+\text{DD}(t) = \frac{\text{Peak}(t) - V(t)}{\text{Peak}(t)}
+\]
+
+\[
+\text{MDD} = \max_t \text{DD}(t)
+\]
+
+onde:
+- \(\text{Peak}(t) = \max_{s \leq t} V(s)\) é o valor máximo até o período \(t\)
+- \(V(t)\) é o valor do portfólio no período \(t\)
+
 #### 6. Processamento de Sentimento
 
 - **Fonte**: Arquivo CSV (`data/raw/daily_sentiment_full.csv`)
@@ -375,42 +700,6 @@ crypto_data_{symbols}_{interval}_{start}_{end}.pkl
    - Alocação igual (1/N)
    - Rebalanceamento periódico
    - Com custos de transação
-
-### Requisitos do Sistema
-
-**Hardware Mínimo**:
-- CPU: 4 cores
-- RAM: 8 GB
-- Espaço em Disco: 5 GB (dados + modelos)
-
-**Hardware Recomendado**:
-- CPU: 8+ cores
-- RAM: 16+ GB
-- GPU: Opcional (não utilizada no código atual)
-- Espaço em Disco: 10+ GB
-
-**Software**:
-- Python 3.8+
-- pip ou conda
-- Sistema operacional: Windows, Linux ou macOS
-
-**Dependências Principais**:
-- numpy >= 1.21.0
-- pandas >= 1.3.0
-- scikit-learn >= 1.0.0
-- scipy >= 1.7.0
-- requests >= 2.25.0
-- matplotlib >= 3.5.0
-- gymnasium >= 0.28.0
-- stable-baselines3 >= 2.0.0
-- plotly >= 5.0.0
-
-### Tempo de Execução Aproximado
-
-- **Geração de Indicadores**: 5-10 minutos
-- **Treinamento MLP**: 2-5 minutos
-- **Treinamento RL**: 30-60 minutos (150k steps)
-- **Pipeline Completo**: 40-75 minutos
 
 ### Reprodutibilidade
 
