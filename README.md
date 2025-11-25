@@ -407,17 +407,17 @@ $$
 
 Camada oculta 1:
 $$
-\mathbf{h}_1 = ReLU(\mathbf{W}_1 \mathbf{x} + \mathbf{b}_1)
+h_1 = ReLU(W_1 x + b_1)
 $$
 
 Camada oculta 2:
 $$
-\mathbf{h}_2 = ReLU(\mathbf{W}_2 \mathbf{h}_1 + \mathbf{b}_2)
+h_2 = ReLU(W_2 h_1 + b_2)
 $$
 
 Camada de saída (logits):
 $$
-\mathbf{z} = \mathbf{W}_3 \mathbf{h}_2 + \mathbf{b}_3
+z = W_3 h_2 + b_3
 $$
 
 Função de ativação ReLU:
@@ -427,12 +427,12 @@ $$
 
 **Softmax** (normalização para probabilidades):
 $$
-P(y = k | \mathbf{x}) = \frac{e^{z_k}}{\sum_{j=1}^{5} e^{z_j}}
+P(y = k | x) = \frac{e^{z_k}}{\sum_{j=1}^{5} e^{z_j}}
 $$
 
 **Função de Perda (Cross-Entropy)**:
 $$
-\mathcal{L} = -\frac{1}{N} \sum_{i=1}^{N} \sum_{k=1}^{5} y_{i,k} \log(P(y_i = k | \mathbf{x}_i))
+L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{k=1}^{5} y_{i,k} \log(P(y_i = k | x_i))
 $$
 
 onde:
@@ -441,26 +441,26 @@ onde:
 
 **Regularização L2**:
 $$
-\mathcal{L}_{total} = \mathcal{L} + \alpha \sum_{l=1}^{3} ||\mathbf{W}_l||_2^2
+L_{total} = L + \alpha \sum_{l=1}^{3} ||W_l||_2^2
 $$
 
 onde $\alpha = 0.0001$ é o coeficiente de regularização.
 
 **Otimizador Adam**:
 $$
-\mathbf{m}_t = \beta_1 \mathbf{m}_{t-1} + (1-\beta_1) \nabla_\theta \mathcal{L}_t
+m_t = \beta_1 m_{t-1} + (1-\beta_1) \nabla_\theta L_t
 $$
 
 $$
-\mathbf{v}_t = \beta_2 \mathbf{v}_{t-1} + (1-\beta_2) (\nabla_\theta \mathcal{L}_t)^2
+v_t = \beta_2 v_{t-1} + (1-\beta_2) (\nabla_\theta L_t)^2
 $$
 
 $$
-\hat{\mathbf{m}}_t = \frac{\mathbf{m}_t}{1-\beta_1^t}, \quad \hat{\mathbf{v}}_t = \frac{\mathbf{v}_t}{1-\beta_2^t}
+\hat{m}_t = \frac{m_t}{1-\beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1-\beta_2^t}
 $$
 
 $$
-\theta_{t+1} = \theta_t - \eta \frac{\hat{\mathbf{m}}_t}{\sqrt{\hat{\mathbf{v}}_t} + \epsilon}
+\theta_{t+1} = \theta_t - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
 $$
 
 onde:
