@@ -1,8 +1,8 @@
-# Estratégia de Trading com Criptomoedas - Datathon
+# Estratégia de Trading com Criptomoedas - Datathon FGV 25
 
 ## Visão Geral
 
-Este projeto implementa uma estratégia completa de trading algorítmico para criptomoedas utilizando técnicas de Machine Learning e Reinforcement Learning. A estratégia transforma um problema de regressão (predição de retornos contínuos) em classificação através de **binning supervisionado com Decision Tree**, e utiliza modelos MLP e RL para alocação de portfólio. A estratégia utiliza **dados semanais** e o método **Tree** para binning.
+Este projeto implementa uma estratégia completa de trading algorítmico para criptomoedas utilizando técnicas de Machine Learning e Reinforcement Learning. A estratégia transforma um problema de regressão (predição de retornos contínuos) em classificação através de **binning supervisionado com Decision Tree**, e utiliza modelos MLP e RL para alocação de portfólio.
 
 ## Estrutura do Projeto
 
@@ -34,8 +34,6 @@ Datathon/
     └── reports/            # Relatórios e métricas (CSVs, HTMLs)
 ```
 
-**Nota**: O projeto foi reorganizado para manter todo o pipeline em arquivos `.py`. Os arquivos antigos foram movidos para a estrutura modular acima. Veja `ESTRUTURA.md` para detalhes completos da reorganização.
-
 ## Estratégia
 
 ### 1. Binning Supervisionado (Decision Tree)
@@ -60,6 +58,7 @@ A estratégia transforma retornos contínuos em 5 classes discretas usando **Dec
 ### 3. Pipeline RL (Reinforcement Learning - Semanal)
 
 - **Frequência**: Dados semanais (1w)
+- **Ambiente**: `CryptoPortfolioEnv` (Gymnasium)
 - **Algoritmo**: PPO (Proximal Policy Optimization)
 - **Entrada**: 
   - Sentimento (S[t]): vetor [positivo, neutro, negativo]
@@ -202,6 +201,233 @@ crypto_data_{symbols}_{interval}_{start}_{end}.pkl
 - O ambiente RL inclui custos de transação e penalidades por turnover
 - O modelo RL utiliza lookback de 1 período por padrão
 
+## Informações Técnicas Detalhadas
+
+### Metodologia
+
+#### 1. Coleta e Preparação de Dados
+
+- **Fonte de Dados**: API Binance (klines)
+- **Formato de Dados**: OHLCV (Open, High, Low, Close, Volume)
+- **Cache**: Dados são cacheados em arquivos `.pkl` para otimização
+- **Período de Treino**: 2020-01-01 a 2023-12-31 (4 anos)
+- **Período de Teste**: 2024-01-01 a 2025-12-31 (2 anos)
+- **Frequência**: Semanal (1w)
+- **Retornos**: Log-retornos calculados como `ln(close[t] / close[t-1])`
+
+#### 2. Binning Supervisionado (Decision Tree)
+
+**Algoritmo**: `DecisionTreeRegressor` (scikit-learn)
+
+**Parâmetros**:
+- `max_leaf_nodes=5`: Define 5 bins discretos
+- `criterion='squared_error'`: Minimiza variância dentro dos bins
+- `min_samples_split=2`: Mínimo de amostras para dividir um nó
+- `min_samples_leaf=1`: Mínimo de amostras em uma folha
+
+**Processo**:
+1. Treina uma árvore de decisão usando retornos como variável alvo
+2. Cada folha da árvore representa um bin
+3. Os bins são ordenados do menor ao maior retorno
+4. Bins são aplicados de forma estática em todo o conjunto de dados
+
+**Vantagens**:
+- Método supervisionado que aprende cortes ótimos dos dados
+- Adapta-se à distribuição dos retornos
+- Não requer normalização prévia
+
+#### 3. Pipeline MLP (Multi-Layer Perceptron)
+
+**Modelo**: `MLPClassifier` (scikit-learn)
+
+**Arquitetura**:
+- **Camada de Entrada**: Dimensão variável (depende do número de features)
+- **Camada Oculta 1**: 32 neurônios
+- **Camada Oculta 2**: 64 neurônios
+- **Camada de Saída**: 5 neurônios (softmax para 5 classes)
+
+**Hiperparâmetros**:
+- `hidden_layer_sizes=(32, 64)`: Arquitetura da rede
+- `activation='relu'`: Função de ativação ReLU
+- `solver='adam'`: Otimizador Adam
+- `alpha=0.0001`: Regularização L2
+- `learning_rate='constant'`: Taxa de aprendizado constante
+- `learning_rate_init=0.001`: Taxa de aprendizado inicial
+- `max_iter=500`: Máximo de iterações
+- `random_state=42`: Semente para reprodutibilidade
+
+**Preprocessamento**:
+- **StandardScaler**: Normalização de features numéricas (média=0, desvio=1)
+- **OneHotEncoder**: Codificação de features categóricas (símbolos)
+- **Validação**: Divisão treino/teste temporal (sem shuffle)
+
+**Features de Entrada**:
+- 15 indicadores técnicos (normalizados)
+- Features categóricas (símbolos das criptomoedas)
+- Total: ~20-25 features por amostra
+
+#### 4. Pipeline RL (Reinforcement Learning)
+
+**Framework**: Gymnasium + Stable-Baselines3
+
+**Algoritmo**: PPO (Proximal Policy Optimization)
+
+**Configuração do Ambiente** (`CryptoPortfolioEnv`):
+
+**Estado (State Space)**:
+- **Sentimento (S[t])**: Vetor [positivo, neutro, negativo] - 3 dimensões
+- **Probabilidades de Bins (P[t])**: Matriz (N, 5) onde N = número de criptos - 45 dimensões (9 criptos × 5 bins)
+- **Retornos Realizados (R[t+1])**: Vetor de retornos - 9 dimensões
+- **Máscara de Elegibilidade (M[t])**: Vetor binário - 9 dimensões
+- **Pesos Anteriores (W[t-1])**: Vetor de alocação anterior - 9 dimensões
+- **EWMA Volatilidade**: Volatilidade exponencialmente ponderada - 9 dimensões
+- **Retorno Líquido Anterior**: Retorno líquido do portfólio - 1 dimensão
+- **Total**: ~89 dimensões
+
+**Ação (Action Space)**:
+- **Tipo**: Box (contínuo)
+- **Dimensão**: N (número de criptomoedas) = 9
+- **Range**: [0, 1] (logits)
+- **Normalização**: Softmax para garantir soma = 1 (pesos de portfólio)
+
+**Recompensa (Reward)**:
+- **Tipo**: Sharpe Ratio Local ou Mean-Variance
+- **Cálculo**: `(retorno_médio - taxa_livre_risco) / volatilidade`
+- **Janela**: Rolling window de N períodos
+- **Penalizações**:
+  - Custos de transação: 0.1% por transação
+  - Turnover: Penalidade por mudanças excessivas de posição
+
+**Hiperparâmetros PPO**:
+- `learning_rate=3e-4`: Taxa de aprendizado
+- `n_steps=2048`: Passos por atualização
+- `batch_size=64`: Tamanho do batch
+- `n_epochs=10`: Épocas por atualização
+- `gamma=0.99`: Fator de desconto
+- `gae_lambda=0.95`: Parâmetro GAE (Generalized Advantage Estimation)
+- `clip_range=0.2`: Clipping do PPO
+- `ent_coef=0.01`: Coeficiente de entropia
+- `vf_coef=0.5`: Coeficiente de valor
+- `total_timesteps=150000`: Total de passos de treinamento
+
+**Arquitetura da Rede Neural (PPO)**:
+- **Policy Network**: MLP com 2 camadas ocultas (64, 64 neurônios)
+- **Value Network**: MLP com 2 camadas ocultas (64, 64 neurônios)
+- **Ativação**: Tanh
+- **Função de Valor**: Critic network separado
+
+#### 5. Indicadores Técnicos
+
+**Cálculo de Indicadores**:
+
+1. **Retornos**:
+   - `ret_1`: `ln(close[t] / close[t-1])`
+   - `ret_5`: `ln(close[t] / close[t-5])`
+   - `ret_20`: `ln(close[t] / close[t-20])`
+
+2. **Médias Móveis**:
+   - `SMA(n)`: Média aritmética simples
+   - `EMA(n)`: Média exponencialmente ponderada
+   - Ratios: `price / SMA(n)` e `price / EMA(n)`
+
+3. **Volatilidade**:
+   - `vol_n`: Desvio padrão dos retornos em janela de n períodos
+
+4. **RSI (Relative Strength Index)**:
+   - `RSI_14`: Indicador de momentum (0-100)
+   - Fórmula: `100 - (100 / (1 + RS))` onde `RS = média_gains / média_losses`
+
+5. **Bandas de Bollinger**:
+   - `bb_width_20`: `(upper_band - lower_band) / middle_band`
+   - `bb_pos_20`: `(price - lower_band) / (upper_band - lower_band)`
+
+6. **Volume**:
+   - `volume_zscore_20`: Z-score do volume em janela de 20 períodos
+   - `pv_corr_20`: Correlação entre retornos e variação de volume
+
+**Seleção de Features**:
+- Threshold de correlação: < 0.3
+- Remove features altamente correlacionadas
+- Mantém diversidade de informações
+
+#### 6. Processamento de Sentimento
+
+- **Fonte**: Arquivo CSV (`data/raw/daily_sentiment_full.csv`)
+- **Agregação**: Dados diários agregados para frequência semanal
+- **Formato**: [positivo, neutro, negativo] por criptomoeda
+- **Normalização**: Soma = 1 (probabilidades)
+
+#### 7. Benchmarks
+
+**Estratégias de Comparação**:
+
+1. **Buy & Hold Equal Weight**:
+   - Alocação inicial igual (1/N)
+   - Sem rebalanceamento
+   - Sem custos de transação
+
+2. **Markowitz Sharpe Optimization**:
+   - Otimização de Sharpe Ratio
+   - Rebalanceamento periódico
+   - Considera matriz de covariância
+
+3. **Equal Weight Rebalanced**:
+   - Alocação igual (1/N)
+   - Rebalanceamento periódico
+   - Com custos de transação
+
+### Requisitos do Sistema
+
+**Hardware Mínimo**:
+- CPU: 4 cores
+- RAM: 8 GB
+- Espaço em Disco: 5 GB (dados + modelos)
+
+**Hardware Recomendado**:
+- CPU: 8+ cores
+- RAM: 16+ GB
+- GPU: Opcional (não utilizada no código atual)
+- Espaço em Disco: 10+ GB
+
+**Software**:
+- Python 3.8+
+- pip ou conda
+- Sistema operacional: Windows, Linux ou macOS
+
+**Dependências Principais**:
+- numpy >= 1.21.0
+- pandas >= 1.3.0
+- scikit-learn >= 1.0.0
+- scipy >= 1.7.0
+- requests >= 2.25.0
+- matplotlib >= 3.5.0
+- gymnasium >= 0.28.0
+- stable-baselines3 >= 2.0.0
+- plotly >= 5.0.0
+
+### Tempo de Execução Aproximado
+
+- **Geração de Indicadores**: 5-10 minutos
+- **Treinamento MLP**: 2-5 minutos
+- **Treinamento RL**: 30-60 minutos (150k steps)
+- **Pipeline Completo**: 40-75 minutos
+
+### Reprodutibilidade
+
+- **Seeds Fixos**: `random_state=42` em todos os modelos
+- **Ordenação Temporal**: Dados mantêm ordem cronológica
+- **Sem Shuffle**: Divisão treino/teste temporal
+- **Cache Determinístico**: Dados cacheados garantem consistência
+
+### Limitações e Considerações
+
+1. **Lookback Limitado**: RL utiliza apenas 1 período de histórico
+2. **Custos de Transação**: Fixo em 0.1% (pode variar na prática)
+3. **Slippage**: Não considerado no modelo
+4. **Liquidez**: Assume liquidez infinita
+5. **Dados de Sentimento**: Requer arquivo externo pré-processado
+6. **Frequência Fixa**: Apenas estratégia semanal implementada
+
 ## Contribuição
 
 Este projeto foi desenvolvido para o Datathon FGV. Para questões ou melhorias, por favor abra uma issue ou pull request.
@@ -214,16 +440,3 @@ O projeto foi organizado em módulos Python para facilitar manutenção e reutil
 - **`src/binning/`**: Algoritmo de binning supervisionado (Decision Tree)
 - **`src/models/`**: Pipelines de treinamento (MLP e RL)
 - **`src/utils/`**: Funções auxiliares e visualizações
-
-Cada módulo possui um `__init__.py` que exporta as funções principais, permitindo imports limpos:
-
-```python
-from src.data import prepare_binance_data_for_training
-from src.binning.decision_tree import create_supervised_static_bins
-from src.models.mlp_pipeline import main as train_mlp
-```
-
-## Licença
-
-Este projeto é fornecido "como está" para fins educacionais e de pesquisa.
-
