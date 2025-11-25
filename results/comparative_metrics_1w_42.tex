@@ -1,0 +1,34 @@
+\begin{table}[htbp]
+\centering
+\caption{Comparação de Performance das Estratégias (Teste Out-of-Sample)}
+\label{tab:strategies_comparison}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Métrica} & \textbf{Eurytion} & \textbf{Buy \& Hold EW} & \textbf{Markowitz} \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Desempenho}}} \\
+Capital Inicial (\$) & 1,000,000.00 & 1,000,000.00 & 1,000,000.00 \\
+Valor Final (\$) & 1,743,536.24 & 1,334,936.07 & 1,559,333.27 \\
+Retorno Total (\%) & 74.35 & 33.49 & 55.93 \\
+CAGR (\%) & 34.86 & 16.81 & 26.99 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Métricas Ajustadas ao Risco}}} \\
+Volatilidade Anual (\%) & 62.20 & 61.51 & 53.67 \\
+Razão de Sharpe & 0.73 & 0.51 & 0.65 \\
+Razão de Sortino & 1.08 & 0.80 & 0.99 \\
+Máximo Drawdown (\%) & -51.21 & -49.62 & -48.51 \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Estatísticas Operacionais}}} \\
+Taxa de Vitória (\%) & 54.08 & 51.02 & 53.06 \\
+\midrule
+Período (anos) & 1.9 & 1.9 & 1.9 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textbf{Eurytion}: Reinforcement Learning (PPO) com sinais MLP e sentimentos
+\item \textbf{Buy \& Hold EW}: Portfolio equal-weight com rebalanceamento inicial
+\item \textbf{Markowitz}: Otimização média-variância (maximizar Sharpe) com rebalanceamento trimestral
+\item Período de teste: out-of-sample
+\end{tablenotes}
+\end{table}
