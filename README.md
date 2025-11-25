@@ -372,80 +372,16 @@ $$
 
 #### 2. Indicadores Técnicos
 
-**Média Móvel Simples (SMA)**:
-$$
-SMA_n(t) = \frac{1}{n} \sum_{i=0}^{n-1} P_{t-i}
-$$
+Os indicadores técnicos calculados incluem:
 
-**Média Móvel Exponencial (EMA)**:
-$$
-EMA_n(t) = \alpha \cdot P_t + (1-\alpha) \cdot EMA_n(t-1)
-$$
-
-onde $\alpha = \frac{2}{n+1}$ é o fator de suavização.
-
-**Ratios de Preço**:
-$$
-ratio_{SMA}(t) = \frac{P_t}{SMA_n(t)}
-$$
-
-**Volatilidade (Desvio Padrão dos Retornos)**:
-$$
-\sigma_n(t) = \sqrt{\frac{1}{n-1} \sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2}
-$$
-
-onde $\bar{r}_n = \frac{1}{n} \sum_{i=0}^{n-1} r_{t-i}$ é a média dos retornos.
-
-**RSI (Relative Strength Index)**:
-$$
-RS_n(t) = \frac{AG_n(t)}{AL_n(t)}
-$$
-
-$$
-RSI_n(t) = 100 - \frac{100}{1 + RS_n(t)}
-$$
-
-onde:
-- $AG_n(t)$ é a média dos ganhos nos últimos $n$ períodos
-- $AL_n(t)$ é a média das perdas nos últimos $n$ períodos
-
-**Bandas de Bollinger**:
-$$
-BB_{middle}(t) = SMA_{20}(t)
-$$
-
-$$
-BB_{upper}(t) = SMA_{20}(t) + 2 \cdot \sigma_{20}(t)
-$$
-
-$$
-BB_{lower}(t) = SMA_{20}(t) - 2 \cdot \sigma_{20}(t)
-$$
-
-$$
-BB_{width}(t) = \frac{BB_{upper}(t) - BB_{lower}(t)}{BB_{middle}(t)}
-$$
-
-$$
-BB_{pos}(t) = \frac{P_t - BB_{lower}(t)}{BB_{upper}(t) - BB_{lower}(t)}
-$$
-
-**Z-score de Volume**:
-$$
-volume\_zscore_n(t) = \frac{V_t - \bar{V}_n}{\sigma_{V,n}}
-$$
-
-onde:
-- $V_t$ é o volume no período $t$
-- $\bar{V}_n$ é a média do volume nos últimos $n$ períodos
-- $\sigma_{V,n}$ é o desvio padrão do volume nos últimos $n$ períodos
-
-**Correlação Preço-Volume**:
-$$
-pv\_corr_n(t) = \frac{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)(\Delta V_{t-i} - \overline{\Delta V}_n)}{\sqrt{\sum_{i=0}^{n-1} (r_{t-i} - \bar{r}_n)^2 \sum_{i=0}^{n-1} (\Delta V_{t-i} - \overline{\Delta V}_n)^2}}
-$$
-
-onde $\Delta V_t = V_t - V_{t-1}$ é a variação do volume.
+- **Média Móvel Simples (SMA)**: Média aritmética dos preços de fechamento em uma janela de n períodos
+- **Média Móvel Exponencial (EMA)**: Média exponencialmente ponderada dos preços, dando mais peso aos valores recentes
+- **Ratios de Preço**: Razão entre o preço atual e as médias móveis (SMA e EMA)
+- **Volatilidade**: Desvio padrão dos retornos logarítmicos em uma janela de n períodos
+- **RSI (Relative Strength Index)**: Indicador de momentum baseado na relação entre ganhos e perdas médias
+- **Bandas de Bollinger**: Bandas superior, inferior e média baseadas em SMA e desvio padrão, com indicadores de largura e posição relativa
+- **Z-score de Volume**: Normalização do volume em relação à média e desvio padrão históricos
+- **Correlação Preço-Volume**: Correlação entre retornos e variação de volume
 
 #### 3. Binning Supervisionado (Decision Tree)
 
