@@ -1,4 +1,4 @@
-# Estratégia de Trading com Criptomoedas - Datathon FGV 25
+# Simulando uma Asset de Criptomoedas - Datathon FGV 25 2o lugar
 
 ## Visão Geral
 
